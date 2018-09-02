@@ -45,9 +45,16 @@ public class IPLogger {
         final int duration = (args != null && args.length >= 2) ? Integer.parseInt(args[1]) : 0;
         if (period <= 0 || duration == 0) {
             logIPAddress();
+            exit();
         } else {
-            System.out.println("Executing IP Address logging every " + (period / 1000) + " second");
+            System.out.println("Executing IP Address logging every " + (period / 1000) + " seconds");
             final Timer timer = new Timer();
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    logIPAddress();
+                }
+            }, 0, period);
             if (duration > 0) {
                 System.out.println("IP Address logging ends in " + (duration / 1000) + " seconds");
                 new Timer().schedule(new TimerTask() {
@@ -55,17 +62,11 @@ public class IPLogger {
                     public void run() {
                         timer.cancel();
                         System.out.println("Ended IP Address logging Timer");
+                        exit();
                     }
                 }, duration);
             }
-            timer.scheduleAtFixedRate(new TimerTask() {
-                @Override
-                public void run() {
-                    logIPAddress();
-                }
-            }, 0, period);
         }
-        System.out.println("Finished " + IPLogger.class.getSimpleName());
     }
     
     public static final void loadProperties() {
@@ -93,6 +94,16 @@ public class IPLogger {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+    
+    public static final void exit() {
+        System.out.println("Finished " + IPLogger.class.getSimpleName());
+        try {
+            Thread.sleep(2000);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        System.exit(0);
     }
     
 }
