@@ -26,6 +26,8 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class IPLogger {
     
@@ -39,7 +41,30 @@ public class IPLogger {
     
     public static final void main(String[] args) throws Exception {
         System.out.println("Started " + IPLogger.class.getSimpleName());
-        logIPAddress();
+        final int period = (args != null && args.length >= 1) ? Integer.parseInt(args[0]) : 0;
+        final int duration = (args != null && args.length >= 2) ? Integer.parseInt(args[1]) : 0;
+        if (period <= 0 || duration == 0) {
+            logIPAddress();
+        } else {
+            System.out.println("Executing IP Address logging every " + (period / 1000) + " second");
+            final Timer timer = new Timer();
+            if (duration > 0) {
+                System.out.println("IP Address logging ends in " + (duration / 1000) + " seconds");
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        timer.cancel();
+                        System.out.println("Ended IP Address logging Timer");
+                    }
+                }, duration);
+            }
+            timer.scheduleAtFixedRate(new TimerTask() {
+                @Override
+                public void run() {
+                    logIPAddress();
+                }
+            }, 0, period);
+        }
         System.out.println("Finished " + IPLogger.class.getSimpleName());
     }
     
