@@ -5,6 +5,10 @@ import de.codemakers.iot.IFTTJ;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Properties;
 
 public class IPLogger {
@@ -41,9 +45,10 @@ public class IPLogger {
     
     public static final void logIPAddress() {
         try {
+            final Instant instant = Instant.now();
             final String ip_address = IFTTJ.getOutInetAddress();
-            IFTTJ.trigger("log_ip_address", ip_address);
-            System.out.println("Logged IP Address: " + ip_address);
+            IFTTJ.trigger("log_ip_address", ip_address, instant.toEpochMilli(), ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()).format(DateTimeFormatter.ISO_ZONED_DATE_TIME));
+            System.out.println(String.format("[%s] Logged IP Address: %s", ZonedDateTime.now().format(DateTimeFormatter.ISO_ZONED_DATE_TIME), ip_address));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
